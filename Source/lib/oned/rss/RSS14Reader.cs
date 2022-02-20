@@ -157,21 +157,17 @@ namespace ZXing.OneD.RSS
 
             ResultPoint[] leftPoints = leftPair.FinderPattern.ResultPoints;
             ResultPoint[] rightPoints = rightPair.FinderPattern.ResultPoints;
-            return new Result(
+            var result = new Result(
                 buffer.ToString(),
                 null,
                 new ResultPoint[] {leftPoints[0], leftPoints[1], rightPoints[0], rightPoints[1],},
                 BarcodeFormat.RSS_14);
+            result.putMetadata(ResultMetadataType.SYMBOLOGY_IDENTIFIER, "]e0");
+            return result;
         }
 
         private static bool checkChecksum(Pair leftPair, Pair rightPair)
         {
-            //int leftFPValue = leftPair.FinderPattern.Value;
-            //int rightFPValue = rightPair.FinderPattern.Value;
-            //if ((leftFPValue == 0 && rightFPValue == 8) ||
-            //    (leftFPValue == 8 && rightFPValue == 0))
-            //{
-            //}
             int checkValue = (leftPair.ChecksumPortion + 16 * rightPair.ChecksumPortion) % 79;
             int targetCheckValue =
                 9 * leftPair.FinderPattern.Value + rightPair.FinderPattern.Value;

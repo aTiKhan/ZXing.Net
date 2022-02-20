@@ -21,8 +21,6 @@ using System.IO;
 
 #if NETFX_CORE
 using Windows.UI;
-#elif SILVERLIGHT
-using System.Windows.Media;
 #elif UNITY
 using UnityEngine;
 #elif !(PORTABLE || NETSTANDARD)
@@ -150,7 +148,7 @@ namespace ZXing.Rendering
         /// </summary>
         public SvgRenderer()
         {
-#if NETFX_CORE || SILVERLIGHT
+#if NETFX_CORE
          Foreground = Colors.Black;
          Background = Colors.White;
 #elif UNITY
@@ -463,7 +461,7 @@ namespace ZXing.Rendering
             internal static string GetBackgroundStyle(Color color)
             {
                 double alpha = ConvertAlpha(color);
-                return string.Format("style=\"background-color:rgb({0},{1},{2});background-color:rgba({3});\"",
+                return string.Format("style=\"background-color:rgb({0},{1},{2});background-color:rgba({0}, {1}, {2}, {3});\"",
                     color.R, color.G, color.B, alpha);
             }
 
@@ -486,7 +484,7 @@ namespace ZXing.Rendering
          internal static string GetBackgroundStyle(Color32 color)
          {
             double alpha = ConvertAlpha(color);
-            return string.Format("style=\"background-color:rgb({0},{1},{2});background-color:rgba({3});\"",
+            return string.Format("style=\"background-color:rgb({0},{1},{2});background-color:rgba({0},{1},{2},{3});\"",
                 color.r, color.g, color.b, alpha);
          }
 

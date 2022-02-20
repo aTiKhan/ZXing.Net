@@ -31,7 +31,7 @@ namespace ZXing.Datamatrix
         /// <summary>
         /// Specifies the matrix shape for Data Matrix
         /// </summary>
-#if !NETSTANDARD && !NETFX_CORE && !WindowsCE && !SILVERLIGHT && !PORTABLE && !UNITY
+#if !NETSTANDARD && !NETFX_CORE && !PORTABLE && !UNITY
         [CategoryAttribute("Output options"), DescriptionAttribute("Specifies the matrix shape for Data Matrix.")]
 #endif
         public SymbolShapeHint? SymbolShape
@@ -61,8 +61,9 @@ namespace ZXing.Datamatrix
         /// <summary>
         /// Specifies a minimum barcode size
         /// </summary>
-#if !NETSTANDARD && !NETFX_CORE && !WindowsCE && !SILVERLIGHT && !PORTABLE && !UNITY
+#if !NETSTANDARD && !NETFX_CORE && !PORTABLE && !UNITY
         [CategoryAttribute("Standard"), DescriptionAttribute("Specifies a minimum barcode size.")]
+        [TypeConverter(typeof(DimensionConverter))]
 #endif
         public Dimension MinSize
         {
@@ -91,8 +92,9 @@ namespace ZXing.Datamatrix
         /// <summary>
         /// Specifies a maximum barcode size
         /// </summary>
-#if !NETSTANDARD && !NETFX_CORE && !WindowsCE && !SILVERLIGHT && !PORTABLE && !UNITY
+#if !NETSTANDARD && !NETFX_CORE && !PORTABLE && !UNITY
         [CategoryAttribute("Standard"), DescriptionAttribute("Specifies a maximum barcode size.")]
+        [TypeConverter(typeof(DimensionConverter))]
 #endif
         public Dimension MaxSize
         {
@@ -123,7 +125,7 @@ namespace ZXing.Datamatrix
         /// Make sure that the content fits into the encodation value, otherwise there will be an exception thrown.
         /// standard value: Encodation.ASCII
         /// </summary>
-#if !NETSTANDARD && !NETFX_CORE && !WindowsCE && !SILVERLIGHT && !PORTABLE && !UNITY
+#if !NETSTANDARD && !NETFX_CORE && !PORTABLE && !UNITY
         [CategoryAttribute("Standard"), DescriptionAttribute("Specifies the default encodation." + 
 			" Make sure that the content fits into the encodation value, otherwise there will be an exception thrown." +
 			" Standard value: Encodation.ASCII")]
@@ -152,4 +154,73 @@ namespace ZXing.Datamatrix
             }
         }
     }
+
+#if !NETSTANDARD && !NETFX_CORE && !PORTABLE && !UNITY
+    internal class DimensionConverter : TypeConverter
+    {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
+            if (sourceType == typeof(Dimension))
+                return true;
+            if (sourceType == typeof(String))
+                return true;
+            return base.CanConvertFrom(context, sourceType);
+        }
+
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+        {
+            if (destinationType == typeof(Dimension))
+                return true;
+            return base.CanConvertTo(context, destinationType);
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
+        {
+            var dim = value as Dimension;
+            if (dim != null)
+            {
+                return dim.Height + "x" + dim.Width;
+            }
+            if (value is String)
+            {
+                var valStr = value.ToString();
+                var valStrParts = valStr.Split('x');
+                if (valStrParts.Length > 1)
+                {
+                    int h;
+                    int w;
+                    if (int.TryParse(valStrParts[0], out h) &&
+                        int.TryParse(valStrParts[1], out w))
+                        return new Dimension(w, h);
+                }
+            }
+            return base.ConvertFrom(context, culture, value);
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
+        {
+            if (value == null)
+                return null;
+            var dim = value as Dimension;
+            if (dim != null)
+            {
+                return dim.Height + "x" + dim.Width;
+            }
+            if (destinationType == typeof(Dimension))
+            {
+                var valStr = value.ToString();
+                var valStrParts = valStr.Split('x');
+                if (valStrParts.Length > 1)
+                {
+                    int h;
+                    int w;
+                    if (int.TryParse(valStrParts[0], out h) &&
+                        int.TryParse(valStrParts[1], out w))
+                        return new Dimension(w, h);
+                }
+            }
+            return base.ConvertTo(context, culture, value, destinationType);
+        }
+    }
+#endif
 }
